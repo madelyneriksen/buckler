@@ -1,6 +1,9 @@
 # pylint: disable=invalid-name, too-many-arguments
-"""Module for handling the encryption of files with Scrypt"""
+"""Module for encrypting files with Scrypt and password generation."""
 
+
+import string
+import random
 import pyscrypt
 
 
@@ -26,3 +29,19 @@ def read_from_file(filename: str, key: bytes) -> bytes:
     """Read the contents of a file when given a specific key."""
     with pyscrypt.ScryptFile(filename, key) as file:
         return file.read()
+
+
+def create_passwd(length=24) -> bytes:
+    """
+    Create a password that is (length) long using the cryptographically
+    secure system RNG.
+    Arguments:
+        length: Number of desired characters, Interger. Default 24.
+    Returns:
+        passwd: (Length) byte string of letters, digits, and punctuation
+    """
+    alpha = string.ascii_letters + string.digits + string.punctuation
+    passwd = "".join(
+        [random.SystemRandom().choice(alpha) for i in range(length)]
+    )
+    return str.encode(passwd)
