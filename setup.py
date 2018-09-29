@@ -22,4 +22,9 @@ setup(
     url="https://www.github.com/madelyneriksen/buckler",
     packages=['buckler'],
     long_description=read('README.md'),
+    entry_points={
+        "console_scripts": [
+            "buckler = buckler.cli:main",
+        ]
+    },
 )
