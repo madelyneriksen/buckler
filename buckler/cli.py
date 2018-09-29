@@ -1,6 +1,7 @@
 """Command line interface for Buckler, a password manager for python."""
 
 
+import os
 from getpass import getpass
 import click
 import pyperclip
@@ -58,21 +59,42 @@ def create(name, length, directory):
 
 
 @main.command()
-def show():
+@click.option("--directory", type=str)
+def show(directory):
     """List all the current passwords you have saved."""
-    click.echo("No passwords here!")
+    if not directory:
+        directory = buckler.integrate.BUCKLER_DIR
+    files = [x for x in os.listdir(directory)
+             if os.path.isfile(os.path.join(directory, x))]
+    files.remove('.token')
+    if files:
+        click.secho("Here are your saved password names:", fg="blue")
+        for file in files:
+            click.secho(file, fg="green")
+    else:
+        click.secho("You have no saved passwords.", fg="red")
 
 
 @main.command()
-def get():
+@click.argument("name")
+@click.option("--directory", type=str)
+def get(name, directory):
     """Get a password that's saved in the filesystem."""
-    click.echo("Grabbed your password!")
-
-
-@main.command()
-def rotate():
-    """Rotate a password, swapping it for a new password."""
-    click.echo("Rotated password.")
+    key = get_key()
+    try:
+        if directory:
+            passwd = buckler.read_password(key, name, directory)
+        else:
+            passwd = buckler.read_password(key, name)
+        pyperclip.copy(passwd)
+        click.secho("Password for {} copied to clipboard!".format(name),
+                    fg="green")
+    except ValueError:
+        click.secho("The given password doesn't match the current password",
+                    fg='red')
+    except FileNotFoundError:
+        click.secho("There's no password with the name {}".format(name),
+                    fg="red")
 
 
 if __name__ == "__main__":
