@@ -63,7 +63,7 @@ def create(name, length, directory):
 def show(directory):
     """List all the current passwords you have saved."""
     if not directory:
-        directory = buckler.integrate.BUCKLER_DIR
+        directory = buckler.BUCKLER_DIR
     files = [x for x in os.listdir(directory)
              if os.path.isfile(os.path.join(directory, x))]
     files.remove('.token')
