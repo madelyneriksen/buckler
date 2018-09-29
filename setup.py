@@ -20,6 +20,6 @@ setup(
     description="A simple command line password manager, "
                 "using Scrypt and written in pure python",
     url="https://www.github.com/madelyneriksen/buckler",
-    packages=[],
+    packages=['buckler'],
     long_description=read('README.md'),
 )
