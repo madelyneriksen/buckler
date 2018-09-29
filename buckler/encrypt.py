@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name, too-many-arguments
 """Module for handling the encryption of files with Scrypt"""
 
 import pyscrypt
