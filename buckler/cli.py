@@ -50,9 +50,11 @@ def create(name, length, directory):
         else:
             passwd = buckler.create_password(key, name, length)
         pyperclip.copy(passwd)
+        click.secho(("Password for {name} saved and copied to the clipboard!"
+                     .format(name=name)), fg='green')
     except ValueError:
         click.secho("The given password doesn't match the current password.",
-                    color='red')
+                    fg='red')
 
 
 @main.command()
