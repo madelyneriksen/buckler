@@ -1,9 +1,25 @@
 """Command line interface for Buckler, a password manager for python."""
 
 
+from getpass import getpass
 import click
 import pyperclip
-from buckler import encrypt
+import buckler
+
+
+def get_key() -> bytes:
+    """Get the user's key from the input prompt.
+
+    Returns:
+        key: The user's key for encryption.
+    """
+    while True:
+        passwd_first = getpass()
+        passwd_second = getpass("Retype Password:")
+        if passwd_first == passwd_second:  # pylint: disable=no-else-return
+            return passwd_first.encode()
+        else:
+            click.secho("Passwords don't match!", color='red')
 
 
 @click.group()
@@ -18,12 +34,25 @@ def main():
 
 
 @main.command()
-def create():
+@click.argument("name")
+@click.option("--length", default=24, type=int)
+@click.option("--directory", type=str)
+def create(name, length, directory):
     """Create and save an encypted password to the filesystem.
 
-    Passwords will be stored in .buckler/ in your home folder.
+    The created password is copied to your clipboard for convenience.
+    Passwords will be stored in '.buckler/' in your home folder.
     """
-    click.echo("Created password.")
+    key = get_key()
+    try:
+        if directory:
+            passwd = buckler.create_password(key, name, length, directory)
+        else:
+            passwd = buckler.create_password(key, name, length)
+        pyperclip.copy(passwd)
+    except ValueError:
+        click.secho("The given password doesn't match the current password.",
+                    color='red')
 
 
 @main.command()
