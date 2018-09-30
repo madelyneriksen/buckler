@@ -8,15 +8,15 @@ import pyperclip
 import buckler
 
 
-def get_key() -> bytes:
+def get_key(first_ask="Password: ", second_ask="Retype Password: ") -> bytes:
     """Get the user's key from the input prompt.
 
     Returns:
         key: The user's key for encryption.
     """
     while True:
-        passwd_first = getpass()
-        passwd_second = getpass("Retype Password:")
+        passwd_first = getpass(first_ask)
+        passwd_second = getpass(second_ask)
         if passwd_first == passwd_second:  # pylint: disable=no-else-return
             return passwd_first.encode()
         else:
@@ -37,7 +37,7 @@ def main():
 @main.command()
 @click.argument("name")
 @click.option("--length", default=24, type=int)
-@click.option("--directory", type=str)
+@click.option("--directory", type=str, default=buckler.BUCKLER_DIR)
 def create(name, length, directory):
     """Create and save an encypted password to the filesystem.
 
@@ -46,10 +46,7 @@ def create(name, length, directory):
     """
     key = get_key()
     try:
-        if directory:
-            passwd = buckler.create_password(key, name, length, directory)
-        else:
-            passwd = buckler.create_password(key, name, length)
+        passwd = buckler.create_password(key, name, length, directory)
         pyperclip.copy(passwd)
         click.secho(("Password for {name} saved and copied to the clipboard!"
                      .format(name=name)), fg='green')
@@ -59,11 +56,9 @@ def create(name, length, directory):
 
 
 @main.command()
-@click.option("--directory", type=str)
+@click.option("--directory", type=str, default=buckler.BUCKLER_DIR)
 def show(directory):
     """List all the current passwords you have saved."""
-    if not directory:
-        directory = buckler.BUCKLER_DIR
     files = [x for x in os.listdir(directory)
              if os.path.isfile(os.path.join(directory, x))]
     files.remove('.token')
@@ -77,15 +72,12 @@ def show(directory):
 
 @main.command()
 @click.argument("name")
-@click.option("--directory", type=str)
+@click.option("--directory", type=str, default=buckler.BUCKLER_DIR)
 def get(name, directory):
     """Get a password that's saved in the filesystem."""
     key = get_key()
     try:
-        if directory:
-            passwd = buckler.read_password(key, name, directory)
-        else:
-            passwd = buckler.read_password(key, name)
+        passwd = buckler.read_password(key, name, directory)
         pyperclip.copy(passwd)
         click.secho("Password for {} copied to clipboard!".format(name),
                     fg="green")
@@ -95,6 +87,25 @@ def get(name, directory):
     except FileNotFoundError:
         click.secho("There's no password with the name {}".format(name),
                     fg="red")
+
+
+@main.command()
+@click.option("--directory", type=str, default=buckler.BUCKLER_DIR)
+def rotate(directory):
+    """Rotates all passwords that are saved on disk.
+
+    You will be asked for two keys, one is the current password and the
+    second is the new password. All passwords will be encrypted against the
+    second key.
+    """
+    key = get_key("Current Password: ", "Retype Current Password:")
+    new_key = get_key("New Password: ", "Retype New Password: ")
+    try:
+        buckler.rotate_passwords(key, new_key, directory)
+        click.secho("Rotated all passwords.", fg="green")
+    except ValueError:
+        click.secho("The given current password doesn't "
+                    "match the current password", fg="red")
 
 
 if __name__ == "__main__":
