@@ -3,6 +3,8 @@ Buckler - Python Powered Password Protector
 
 A simple command line password manager, using Scrypt and written in pure python
 
+NOTE: The implementation of Scrypt used in this project is PURE Python, and fairly slow.
+
 ## Getting Started
 
 Install buckler from this repository:
