@@ -79,3 +79,24 @@ def read_password(key: bytes, name: str, directory=BUCKLER_DIR) -> str:
         raise FileNotFoundError("The requested password does not exist!")
     passwd = encrypt.read_from_file(passwd_file, key)
     return passwd.decode()
+
+
+def rotate_passwords(key: bytes, new_key: bytes,
+                     directory=BUCKLER_DIR) -> None:
+    """Rotate all the passwords to match a new key.
+
+    Arguments:
+        key: Current key of the passwords.
+        new_key: New key of the passwords.
+        directory: Directory where the files are located.
+    Returns:
+        None
+    """
+    if not check_token(key, directory):
+        raise ValueError("Provided key does not match stored value token.")
+    files = [os.path.join(directory, x) for x in os.listdir(directory)
+             if os.path.isfile(os.path.join(directory, x))]
+    print(files)
+    for file in files:
+        passwd = encrypt.read_from_file(file, key)
+        encrypt.save_to_file(file, new_key, passwd)
