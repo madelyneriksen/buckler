@@ -8,7 +8,7 @@ import pyscrypt
 
 
 def save_to_file(filename: str, key: bytes, contents: bytes,
-                 N=1024, r=1, p=1):
+                 N=1024, r=8, p=1):
     """Use scrypt to write and save an encrypted file.
 
     Arguments:

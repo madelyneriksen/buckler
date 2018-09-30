@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments
 """Glue for the different functions.
 
 Connets the user's clipboard, manages passwords, and generally connects
@@ -40,7 +41,7 @@ def check_token(key: bytes, directory=BUCKLER_DIR) -> bool:
 
 
 def create_password(key: bytes, name: str, length=24,
-                    directory=BUCKLER_DIR) -> str:
+                    directory=BUCKLER_DIR, memory=2048, mixing=8) -> str:
     """Create a password, save it, and return it as a string.
 
     We return the password rather than force the user to decrypt it, so that
@@ -58,7 +59,7 @@ def create_password(key: bytes, name: str, length=24,
         raise ValueError("Provided key does not match stored token.")
     passwd = encrypt.create_passwd(length)
     passwd_file = os.path.join(directory, name)
-    encrypt.save_to_file(passwd_file, key, passwd)
+    encrypt.save_to_file(passwd_file, key, passwd, N=memory, r=mixing)
     return passwd.decode()
 
 
