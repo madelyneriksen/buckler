@@ -26,6 +26,7 @@ def test_encrypt_decrypt_wrappers(tmpdir):
     """Test the higher level integrate functions for reading and writing."""
     key = b"new key"
     passwd = buckler.create_password(key, "google", length=24,
-                                     directory=tmpdir, memory=1024)
+                                     directory=tmpdir, memory=1024,
+                                     mixing=1)
     assert (buckler.read_password(key, "google", directory=tmpdir)
             == passwd)
