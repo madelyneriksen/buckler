@@ -27,4 +27,9 @@ setup(
             "buckler = buckler.cli:main",
         ]
     },
+    install_requires=[
+        "pyscrypt",
+        "click",
+        "pyperclip"
+    ]
 )
